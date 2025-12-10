@@ -1,0 +1,158 @@
+<%- include("layout", { title: "Admin Panel" , user: user }) %>
+
+  <section class="admin-section">
+    <h2>➕ Add New Movie</h2>
+
+    <% if (typeof error !=="undefined" && error) { %>
+      <div class="alert error">⚠️ <%= error %>
+      </div>
+      <% } %>
+
+        <% if (typeof success !=="undefined" && success) { %>
+          <div class="alert success">✅ <%= success %>
+          </div>
+          <% } %>
+
+            <form class="form card" method="POST" action="/admin/movies">
+              <input name="title" placeholder="🎬 Movie Title" required />
+
+              <label
+                style="color: #b3b3b3; font-size: 0.9rem; margin-top: 10px; margin-bottom: 10px; display: block;">🎭
+                Genres (Select multiple):</label>
+              <div
+                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; background: rgba(14, 14, 14, 0.8); border: 2px solid #333; border-radius: 10px; margin: 10px 0;">
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Action"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Action</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Adventure"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Adventure</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Animation"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Animation</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Comedy"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Comedy</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Crime"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Crime</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Documentary"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Documentary</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Drama"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Drama</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Fantasy"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Fantasy</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Horror"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Horror</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Mystery"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Mystery</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Musical"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Musical</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Romance"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Romance</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Sci-fi"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Sci-fi</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="Thriller"
+                    style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>Thriller</span>
+                </label>
+                <label
+                  style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                  <input type="checkbox" name="genres" value="War" style="cursor: pointer; width: 18px; height: 18px;">
+                  <span>War</span>
+                </label>
+              </div>
+
+              <input name="releaseYear" type="number" placeholder="📅 Release Year" min="1900" max="2100" />
+              <input name="posterUrl" placeholder="🖼️ Poster Image URL" />
+              <input name="videoUrl" placeholder="🎥 Video URL (MP4, YouTube, or Archive.org)" required />
+              <input name="rating" type="number" min="0" max="10" step="0.1" placeholder="⭐ Rating (0–10)" />
+              <textarea name="description" placeholder="📝 Movie Description" rows="4"></textarea>
+              <button type="submit" style="width: 100%; margin-top: 8px;">Add Movie</button>
+            </form>
+  </section>
+
+  <hr class="divider" />
+
+  <section>
+    <h2>🎬 All Movies (<%= movies.length %>)</h2>
+    <% if (!movies || movies.length===0) { %>
+      <div style="text-align: center; padding: 60px 20px;">
+        <p style="font-size: 1.2rem; color: #666;">📽️ No movies added yet. Add your first movie above!</p>
+      </div>
+      <% } else { %>
+        <div class="grid">
+          <% movies.forEach(m=> { %>
+            <article class="card movie">
+              <img src="<%= m.posterUrl %>" alt="<%= m.title %>" loading="lazy">
+              <div class="card-body">
+                <h3>
+                  <%= m.title %>
+                </h3>
+                <p class="muted">
+                  <%= m.genre %> • <%= m.releaseYear %>
+                </p>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                  <a class="btn" href="/movies/<%= m._id %>" style="flex: 1; font-size: 0.85rem;">👁️ View</a>
+                  <a class="btn alt" href="/admin/movies/<%= m._id %>/edit" style="flex: 1; font-size: 0.85rem;">✏️
+                    Edit</a>
+                  <a class="btn warn" href="/admin/movies/<%= m._id %>/delete" style="flex: 1; font-size: 0.85rem;">🗑️
+                    Delete</a>
+                </div>
+              </div>
+            </article>
+            <% }) %>
+        </div>
+        <% } %>
+  </section>
+
+  <%- include("footer") %>

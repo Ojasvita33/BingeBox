@@ -1,0 +1,37 @@
+<%- include("layout", { title: "Favorites" , user: user }) %>
+
+  <div style="margin-bottom: 32px;">
+    <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 8px;">
+      ❤️ Your Favorites
+    </h1>
+    <p style="color: #b3b3b3; font-size: 1.1rem;">Movies you love</p>
+  </div>
+
+  <section class="grid">
+    <% if (!movies || movies.length===0) { %>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+        <p style="font-size: 1.2rem; color: #666;">💔 No favorites yet. Start adding movies you love!</p>
+        <a href="/dashboard" class="btn" style="margin-top: 20px; display: inline-block;">Browse Movies</a>
+      </div>
+      <% } else { %>
+        <% movies.forEach(m=> { %>
+          <article class="card movie">
+            <img src="<%= m.posterUrl %>" alt="<%= m.title %>" loading="lazy" />
+            <div class="card-body">
+              <h3>
+                <%= m.title %>
+              </h3>
+              <p class="muted">
+                <%= m.genre %> • <%= m.releaseYear %>
+              </p>
+              <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <a class="btn" href="/movies/<%= m._id %>" style="flex: 1;">▶️ Watch</a>
+                <a class="btn warn" href="/favorites/remove/<%= m._id %>" style="flex: 1;">💔 Remove</a>
+              </div>
+            </div>
+          </article>
+          <% }) %>
+            <% } %>
+  </section>
+
+  <%- include("footer") %>

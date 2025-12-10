@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="BingeBox - Your ultimate streaming platform">
+  <meta name="theme-color" content="#e50914">
+  <title><%= title || "BingeBox" %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
+  }
+</script>
+
+<body>
+  <header class="nav">
+    <div class="nav-top">
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <a class="brand" href="/dashboard">
+        🎬 BingeBox
+      </a>
+    </div>
+    <nav class="nav-links" id="navLinks">
+      <% if (user) { %>
+        <a href="/dashboard">Home</a>
+        <a href="/profile">Profile</a>
+        <a href="/favorites">Favorites</a>
+        <a href="/history">History</a>
+        <% if (user.role === "admin") { %><a href="/admin">Admin</a><% } %>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+    </nav>
+  </header>
+  <script>
+    (() => {
+      const toggle = document.getElementById('navToggle');
+      const links = document.getElementById('navLinks');
+      if (toggle && links) {
+        toggle.addEventListener('click', () => {
+          links.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', links.classList.contains('open'));
+        });
+        links.querySelectorAll('a').forEach((anchor) => {
+          anchor.addEventListener('click', () => {
+            if (window.innerWidth <= 700) {
+              links.classList.remove('open');
+              toggle.setAttribute('aria-expanded', 'false');
+            }
+          });
+        });
+      }
+    })();
+  </script>
+  <main class="container">

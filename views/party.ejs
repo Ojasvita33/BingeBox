@@ -1,0 +1,188 @@
+<%- include("layout", { title: "Watch Party", user: user }) %>
+
+<section class="movie-page">
+  <div class="player">
+    <%
+      const url = movie.videoUrl || "";
+      const isYT = url.includes("youtube.com") || url.includes("youtu.be");
+      const isArc = url.includes("archive.org/embed");
+      const isMP4 = url.toLowerCase().endsWith(".mp4");
+    %>
+    <% if (isYT || isArc) { %>
+      <iframe id="partyFrame" width="100%" height="500"
+        src="<%= isYT ? (url.includes('embed')?url:url.replace('watch?v=','embed/')) : url %>"
+        frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+      <p class="muted" style="padding: 12px; text-align: center;">ℹ️ Note: Exact time sync is limited for embedded videos. Use chat and manual sync.</p>
+    <% } else if (isMP4) { %>
+      <video id="partyVideo" controls width="100%" height="500">
+        <source src="<%= url %>" type="video/mp4">
+      </video>
+    <% } else { %>
+      <div style="padding: 60px 20px; text-align: center; background: rgba(229, 9, 20, 0.1);">
+        <p style="color:#ff6b6b; font-size: 1.2rem;">⚠️ Unsupported video format</p>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="meta">
+    <h2>🎉 Watch Party — <%= movie.title %></h2>
+    <button id="endPartyBtn"
+      style="background:#e50914;color:white;border:none;padding:10px 18px;
+      border-radius:8px;cursor:pointer;margin-top:12px;">
+      🚫 End Watch Party
+    </button>
+    <div class="party-layout">
+      <div class="chat card" style="max-height:400px; display: flex; flex-direction: column;">
+        <h3 style="margin-bottom: 16px;">💬 Live Chat</h3>
+        <div id="chatLog" style="flex: 1; overflow-y: auto; margin-bottom: 16px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; min-height: 250px;"></div>
+        <form id="chatForm" class="form" style="display:flex;gap:8px;margin:0;">
+          <input id="chatMsg" placeholder="💬 Type your message..." style="margin: 0;" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+      <div class="tips card">
+        <h3 style="margin-bottom: 16px;">ℹ️ Party Info</h3>
+        <p style="margin-bottom: 12px;"><strong>Room ID:</strong> <%= roomId %></p>
+        <p style="margin-bottom: 12px;">✨ Play/Pause/Seek syncs across all viewers (for MP4 videos).</p>
+        <p style="margin-bottom: 8px;"><strong>Share this link:</strong></p>
+        <code style="display: block; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; word-wrap: break-word; font-size: 0.85rem;"><%= "http://localhost:"+ (process.env.PORT||5000) + "/party/" + roomId + "?movie=" + movie._id %></code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="partyEndPopup" class="party-end-popup hidden">
+  <div class="party-end-card">
+    <div class="party-end-icon">🚫</div>
+    <h3>Watch Party Ended</h3>
+    <p id="partyEndMessage">Watch Party ended by host.</p>
+    <button id="partyEndRedirect" class="btn warn" style="width:100%;margin-top:16px;">Go to dashboard</button>
+  </div>
+</div>
+
+<div id="partyEndConfirm" class="party-end-popup hidden">
+  <div class="party-end-card">
+    <div class="party-end-icon">❓</div>
+    <h3>End Watch Party for everyone?</h3>
+    <p class="muted">All viewers will be disconnected and sent back to the dashboard.</p>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button id="partyEndCancel" class="btn alt" style="flex:1;">Keep Watching</button>
+      <button id="partyEndConfirmBtn" class="btn warn" style="flex:1;">End Party</button>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const roomId = "<%= roomId %>";
+  const username = "<%= (user && user.name) ? user.name : 'Guest' %>";
+  const socket = io();
+
+  socket.emit("join-room", { roomId, user: username });
+
+  // chat
+  const log = document.getElementById("chatLog");
+  const form = document.getElementById("chatForm");
+  const input = document.getElementById("chatMsg");
+
+  const addMsg = (m) => {
+    const p = document.createElement("p");
+    p.style.marginBottom = "8px";
+    p.style.padding = "8px 12px";
+    p.style.borderRadius = "8px";
+    
+    if(m.system) {
+      p.style.background = "rgba(76, 175, 80, 0.15)";
+      p.style.color = "#90ee90";
+      p.textContent = "🟢 " + m.text;
+    } else {
+      p.style.background = "rgba(229, 9, 20, 0.1)";
+      p.innerHTML = `<strong>${m.user}:</strong> ${m.text}`;
+    }
+    
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+  };
+
+  form.addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const text = input.value.trim();
+    if(!text) return;
+    socket.emit("chat", { roomId, user: username, text });
+    input.value = "";
+  });
+
+  socket.on("chat", addMsg);
+
+  // video sync (MP4 only)
+  const vid = document.getElementById("partyVideo");
+  if (vid) {
+    let ignore = false;
+
+    ["play","pause"].forEach(evt=>{
+      vid.addEventListener(evt, ()=>{
+        if(ignore) return;
+        socket.emit("video-sync", { roomId, action: evt, time: vid.currentTime });
+      });
+    });
+
+    vid.addEventListener("seeking", ()=>{
+      if(ignore) return;
+      socket.emit("video-sync", { roomId, action: "seek", time: vid.currentTime });
+    });
+
+    socket.on("video-sync", ({action,time})=>{
+      ignore = true;
+      if(action==="play"){ vid.currentTime = time; vid.play(); }
+      if(action==="pause"){ vid.pause(); }
+      if(action==="seek"){ vid.currentTime = time; }
+      setTimeout(()=>ignore=false, 100);
+    });
+  }
+
+  // END WATCH PARTY
+  const endBtn = document.getElementById("endPartyBtn");
+  const endPopup = document.getElementById("partyEndPopup");
+  const endPopupMsg = document.getElementById("partyEndMessage");
+  const endPopupRedirect = document.getElementById("partyEndRedirect");
+  const endConfirm = document.getElementById("partyEndConfirm");
+  const endCancel = document.getElementById("partyEndCancel");
+  const endConfirmBtn = document.getElementById("partyEndConfirmBtn");
+  let endRedirectTimer;
+
+  endBtn.addEventListener("click", () => {
+    endConfirm.classList.remove("hidden");
+  });
+
+  endCancel.addEventListener("click", () => {
+    endConfirm.classList.add("hidden");
+  });
+
+  endConfirmBtn.addEventListener("click", () => {
+    socket.emit("end-party", { roomId, user: username });
+    endConfirm.classList.add("hidden");
+  });
+
+  socket.on("party-ended", ({ user }) => {
+    endPopupMsg.textContent = `Watch Party ended by ${user}`;
+    endPopup.classList.remove("hidden");
+    endRedirectTimer = setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 2000);
+  });
+
+  endPopupRedirect.addEventListener("click", () => {
+    if (endRedirectTimer) clearTimeout(endRedirectTimer);
+    window.location.href = "/dashboard";
+  });
+</script>
+
+<style>
+  @media(max-width: 768px) {
+    .meta > div {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
+<%- include("footer") %>

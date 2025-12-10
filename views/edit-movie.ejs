@@ -1,0 +1,57 @@
+<%- include("layout", { title: "Edit Movie" , user: user }) %>
+
+  <section class="admin-section">
+    <h2>✏️ Edit Movie</h2>
+
+    <% if (typeof error !=="undefined" && error) { %>
+      <div class="alert error">⚠️ <%= error %>
+      </div>
+      <% } %>
+
+        <% if (typeof success !=="undefined" && success) { %>
+          <div class="alert success">✅ <%= success %>
+          </div>
+          <% } %>
+
+            <form class="form card" method="POST" action="/admin/movies/<%= movie._id %>/edit">
+              <input name="title" placeholder="🎬 Movie Title" value="<%= movie.title %>" required />
+
+              <label
+                style="color: #b3b3b3; font-size: 0.9rem; margin-top: 10px; margin-bottom: 10px; display: block;">🎭
+                Genres (Select multiple):</label>
+              <div
+                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; background: rgba(14, 14, 14, 0.8); border: 2px solid #333; border-radius: 10px; margin: 10px 0;">
+                <% const selectedGenres=movie.genre ? movie.genre.split(',').map(g=> g.trim()) : [];
+                  const allGenres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama',
+                  'Fantasy', 'Horror', 'Mystery', 'Musical', 'Romance', 'Sci-fi', 'Thriller', 'War'];
+                  %>
+                  <% allGenres.forEach(genre=> { %>
+                    <label
+                      style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                      <input type="checkbox" name="genres" value="<%= genre %>" <%=selectedGenres.includes(genre)
+                        ? 'checked' : '' %> style="cursor: pointer; width: 18px; height: 18px;">
+                      <span>
+                        <%= genre %>
+                      </span>
+                    </label>
+                    <% }) %>
+              </div>
+
+              <input name="releaseYear" type="number" placeholder="📅 Release Year"
+                value="<%= movie.releaseYear || '' %>" min="1900" max="2100" />
+              <input name="posterUrl" placeholder="🖼️ Poster Image URL" value="<%= movie.posterUrl || '' %>" />
+              <input name="videoUrl" placeholder="🎥 Video URL (MP4, YouTube, or Archive.org)"
+                value="<%= movie.videoUrl || '' %>" required />
+              <input name="rating" type="number" min="0" max="10" step="0.1" placeholder="⭐ Rating (0–10)"
+                value="<%= movie.rating || '' %>" />
+              <textarea name="description" placeholder="📝 Movie Description"
+                rows="4"><%= movie.description || '' %></textarea>
+
+              <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <button type="submit" style="flex: 1;">💾 Update Movie</button>
+                <a href="/admin" class="btn alt" style="flex: 1; text-align: center; padding: 12px;">❌ Cancel</a>
+              </div>
+            </form>
+  </section>
+
+  <%- include("footer") %>

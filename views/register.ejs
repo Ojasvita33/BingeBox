@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="BingeBox - Your ultimate streaming platform">
+  <meta name="theme-color" content="#e50914">
+  <title><%= "Register" || "BingeBox" %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
+  }
+</script>
+
+<body class="auth-page">
+  <header class="nav">
+    <a class="brand" href="/dashboard">
+      BingeBox
+    </a>
+    <nav>
+      <% if (typeof user !== "undefined" && user) { %>
+        <a href="/dashboard">Home</a>
+        <a href="/favorites">Favorites</a>
+        <a href="/history">History</a>
+        <% if (user.role === "admin") { %><a href="/admin">Admin</a><% } %>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+    </nav>
+  </header>
+  <main class="container">
+
+<section class="card form-card">
+  <h2>🎬 Create Account</h2>
+
+  <% if (typeof error !== "undefined" && error) { %>
+    <div class="alert error">⚠️ <%= error %></div>
+  <% } %>
+
+  <form method="POST" action="/register<%= typeof next !== 'undefined' && next ? ('?next=' + encodeURIComponent(next)) : '' %>" class="form">
+    <input name="name" placeholder="👤 Full Name" required autocomplete="name">
+    <input type="email" name="email" placeholder="📧 Email address" required autocomplete="email">
+    <input type="password" name="password" placeholder="🔒 Password" required autocomplete="new-password">
+
+    <% if (typeof next !== 'undefined' && next) { %>
+      <input type="hidden" name="next" value="<%= next %>">
+    <% } %>
+
+    <button style="width: 100%; margin-top: 8px;">Create Account</button>
+  </form>
+
+  <p class="muted" style="text-align: center; margin-top: 20px;">
+    Already have an account?
+    <a href="/login<%= next ? ('?next=' + encodeURIComponent(next)) : '' %>">Sign in</a>
+  </p>
+</section>
+
+  </main>
+  <footer class="footer">
+    <p>🎬 BingeBox © <%= new Date().getFullYear() %> • Your Ultimate Streaming Experience</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<%- include("layout", { title: "Dashboard" , user: user }) %>
+
+  <!-- Featured Movies Carousel -->
+  <% if (movies.length> 0) {
+    const topMovies = movies.sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3);
+    if (topMovies.length > 0) { %>
+    <div class="carousel-section">
+      <div class="carousel-container">
+        <% topMovies.forEach((m, index)=> { %>
+          <div class="carousel-slide">
+            <img src="<%= m.posterUrl %>" alt="<%= m.title %>">
+            <div class="carousel-slide-content">
+              <h2>
+                <%= m.title %>
+              </h2>
+              <p class="muted carousel-meta">
+                <%= m.genre %> • <%= m.releaseYear %> • ⭐ <%= m.rating %>/10
+              </p>
+              <p class="carousel-desc">
+                <%= m.description ? m.description.substring(0, 150) + '...' : '' %>
+              </p>
+              <a class="btn carousel-btn-watch" href="/movies/<%= m._id %>">▶ Watch Now</a>
+            </div>
+          </div>
+          <% }) %>
+      </div>
+      <button class="carousel-btn carousel-prev" onclick="moveCarousel(-1)">‹</button>
+      <button class="carousel-btn carousel-next" onclick="moveCarousel(1)">›</button>
+      <div class="carousel-dots">
+        <% topMovies.forEach((m, index)=> { %>
+          <button class="carousel-dot <%= index === 0 ? 'active' : '' %>" onclick="goToSlide(<%= index %>)"></button>
+          <% }) %>
+      </div>
+    </div>
+    <% }} %>
+
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Discover Movies</h1>
+        <p class="dashboard-subtitle">Find your next favorite film</p>
+      </div>
+
+      <!-- Genre Filter Buttons -->
+      <div class="genre-filter">
+        <span class="genre-label">Genres:</span>
+        <a href="/dashboard" class="genre-btn <%= !q || q === '' ? 'active' : '' %>">All</a>
+        <a href="/dashboard?q=Action" class="genre-btn <%= q === 'Action' ? 'active' : '' %>">Action</a>
+        <a href="/dashboard?q=Adventure" class="genre-btn <%= q === 'Adventure' ? 'active' : '' %>">Adventure</a>
+        <a href="/dashboard?q=Animation" class="genre-btn <%= q === 'Animation' ? 'active' : '' %>">Animation</a>
+        <a href="/dashboard?q=Comedy" class="genre-btn <%= q === 'Comedy' ? 'active' : '' %>">Comedy</a>
+        <a href="/dashboard?q=Crime" class="genre-btn <%= q === 'Crime' ? 'active' : '' %>">Crime</a>
+        <a href="/dashboard?q=Drama" class="genre-btn <%= q === 'Drama' ? 'active' : '' %>">Drama</a>
+        <a href="/dashboard?q=Fantasy" class="genre-btn <%= q === 'Fantasy' ? 'active' : '' %>">Fantasy</a>
+        <a href="/dashboard?q=Horror" class="genre-btn <%= q === 'Horror' ? 'active' : '' %>">Horror</a>
+        <a href="/dashboard?q=Mystery" class="genre-btn <%= q === 'Mystery' ? 'active' : '' %>">Mystery</a>
+        <a href="/dashboard?q=Romance" class="genre-btn <%= q === 'Romance' ? 'active' : '' %>">Romance</a>
+        <a href="/dashboard?q=Sci-fi" class="genre-btn <%= q === 'Sci-fi' ? 'active' : '' %>">Sci-fi</a>
+        <a href="/dashboard?q=Thriller" class="genre-btn <%= q === 'Thriller' ? 'active' : '' %>">Thriller</a>
+      </div>
+
+      <form class="search" method="GET" action="/dashboard">
+        <input name="q" value="<%= typeof q !== 'undefined' ? q : '' %>"
+          placeholder="Search for movies, genres, or years...">
+        <button>Search</button>
+      </form>
+
+      <section class="grid">
+        <% if (!movies.length) { %>
+          <div class="empty-state">
+            <p>
+              <%= typeof q !=='undefined' && q ? '🎬 No movies found. Try a different search!'
+                : '🎬 No movies available yet.' %>
+            </p>
+          </div>
+          <% } %>
+            <% movies.forEach(m=> { %>
+              <article class="card movie">
+                <img src="<%= m.posterUrl %>" alt="<%= m.title %>" loading="lazy">
+                <div class="card-body">
+                  <h3>
+                    <%= m.title %>
+                  </h3>
+                  <p class="muted">
+                    <%= m.genre %> • <%= m.releaseYear %>
+                        <% if (m.rating) { %> • ⭐ <%= m.rating %>
+                            <% } %>
+                  </p>
+                  <a class="btn" href="/movies/<%= m._id %>">▶ Watch Now</a>
+                </div>
+              </article>
+              <% }) %>
+      </section>
+
+      <script>
+        let currentSlide = 0;
+        const carousel = document.querySelector('.carousel-container');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const totalSlides = <%= movies.sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).length %>;
+
+        function updateCarousel() {
+          if (carousel) {
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, index) => {
+              dot.classList.toggle('active', index === currentSlide);
+            });
+          }
+        }
+
+        function moveCarousel(direction) {
+          currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+          updateCarousel();
+        }
+
+        function goToSlide(index) {
+          currentSlide = index;
+          updateCarousel();
+        }
+
+        // Auto-play carousel
+        if (totalSlides > 1) {
+          setInterval(() => {
+            moveCarousel(1);
+          }, 5000);
+        }
+      </script>
+
+      <%- include("footer") %>
