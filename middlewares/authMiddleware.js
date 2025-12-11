@@ -14,7 +14,7 @@ exports.protect = async (req, res, next) => {
 
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(payload.id).select("-password");
+    req.user = await User.findById(payload.id).select("-password").populate("favorites").populate("watchHistory");
     res.locals.user = req.user; // available in EJS (header)
     next();
   } catch (e) {
