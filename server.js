@@ -6,6 +6,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const connectDB = require("./config/db");
 const Movie = require("./models/Movie");
+const User = require("./models/User");
 const { protect } = require("./middlewares/authMiddleware");
 
 const app = express();
@@ -47,6 +48,10 @@ app.get("/proxy", async (req,res)=>{
 app.get("/party/:roomId", protect, async (req,res)=>{
   const movie = await Movie.findById(req.query.movie);
   if(!movie) return res.status(404).send("Movie not found");
+  
+  // Add to watch history
+  await User.findByIdAndUpdate(req.user._id, { $addToSet: { watchHistory: movie._id } });
+  
   res.render("party", { roomId: req.params.roomId, movie, user: req.user });
 });
 
